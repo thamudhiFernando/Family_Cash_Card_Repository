@@ -25,6 +25,10 @@ public class CashCardJsonTest {
         assertThat(42).isEqualTo(42);
     }
 
+    /**
+     * implemented TDD to create a data contract for your CashCard API
+     * @throws IOException
+     */
     @Test
     void cashCardSerializationTest() throws IOException {
         CashCard cashCard = new CashCard(99L, 123.45);
@@ -35,5 +39,27 @@ public class CashCardJsonTest {
         assertThat(json.write(cashCard)).hasJsonPathNumberValue("@.amount");
         assertThat(json.write(cashCard)).extractingJsonPathNumberValue("@.amount")
                 .isEqualTo(123.45);
+    }
+
+    @Test
+    void cashCardDeserializationTest() throws IOException {
+        String expected = """
+            {
+                "id":99,
+                "amount":123.45
+            }
+            """;
+
+        //Failing Test according to the TDD
+        /*assertThat(json.parse(expected))
+                .isEqualTo(new CashCard(100L, 87.78));
+        assertThat(json.parseObject(expected).id()).isEqualTo(99);
+        assertThat(json.parseObject(expected).amount()).isEqualTo(123.45);*/
+
+        //Success Test
+        assertThat(json.parse(expected))
+                .isEqualTo(new CashCard(99L, 123.45));
+        assertThat(json.parseObject(expected).id()).isEqualTo(99);
+        assertThat(json.parseObject(expected).amount()).isEqualTo(123.45);
     }
 }
