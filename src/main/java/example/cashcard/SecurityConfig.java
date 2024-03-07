@@ -16,10 +16,18 @@ import org.springframework.security.web.SecurityFilterChain;
 class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        /*http
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/cashcards/**")
                         .authenticated())
+                .httpBasic(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable());
+        return http.build();*/
+
+        //Enable role-based security - restrict access to only users with the CARD-OWNER role
+        http.authorizeHttpRequests(request -> request
+                        .requestMatchers("/cashcards/**")
+                        .hasRole("CARD-OWNER")) // enable RBAC: Replace the .authenticated() call with the hasRole(...) call.
                 .httpBasic(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable());
         return http.build();
@@ -36,8 +44,19 @@ class SecurityConfig {
         UserDetails sarah = users
                 .username("sarah1")
                 .password(passwordEncoder.encode("abc123"))
-                .roles() // No roles for now
+                .roles("CARD-OWNER") // No roles for now
                 .build();
-        return new InMemoryUserDetailsManager(sarah);
+        UserDetails hankOwnsNoCards = users
+                .username("hank-owns-no-cards")
+                .password(passwordEncoder.encode("qrs456"))
+                .roles("NON-OWNER") // new role
+                .build();
+        /*UserDetails kumar = users
+                .username("hank-owns-no-cards")
+                .password(passwordEncoder.encode("qrs456"))
+                .roles("NON-OWNER") // new role
+                .build();*/
+
+        return new InMemoryUserDetailsManager(sarah,hankOwnsNoCards);
     }
 }
